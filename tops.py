@@ -229,7 +229,7 @@ ap.add_argument("-t", "--top_name", required=True, help="name of the top")
 ap.add_argument("-r", "--reuse_rectangle", action='store_true', help="Reuse previous rectangle")
 args = vars(ap.parse_args())
 
-meta_data=json.load(open('/Users/solomongarber/Desktop/tops/data.json'))
+meta_data=json.load(open('tops/data.json'))
 
 # load the image, clone it, and setup the mouse callback function
 #image = cv2.imread(args["image"])
@@ -247,10 +247,10 @@ else:
     get_ref_pts(ref_pt)
 print('got')
 meta_data['prev_rect']=ref_pt
-f=open('/Users/solomongarber/Desktop/tops/data.json','w')
+f=open('tops/data.json','w')
 f.write(json.dumps(meta_data))
 f.close()
-meta_data=json.load(open('/Users/solomongarber/Desktop/tops/data.json'))
+meta_data=json.load(open('tops/data.json'))
 
 
 clock=get_clock(image,ref_pt)
@@ -359,7 +359,7 @@ while True:
 
 top_name=args["top_name"]
 names=meta_data['names']
-out_dir='/Users/solomongarber/Desktop/tops/'+top_name
+out_dir='tops/'+top_name
 if not os.path.exists(out_dir):
     os.system('mkdir '+out_dir)
 if top_name in names.keys():
