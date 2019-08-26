@@ -373,6 +373,6 @@ if top_name in names.keys():
 else:
     names[top_name]=1
 meta_data['names']=names
-f=open('/Users/solomongarber/Desktop/tops/data.json','w')
+f=open('tops/data.json','w')
 f.write(json.dumps(meta_data))
 f.close()
