@@ -89,6 +89,12 @@ def applyAffineTransform(src, srcTri, dstTri, size) :
             
     return dst
 
+ def fix_point(nums):
+      ind=np.argmin(np.abs(np.abs(nums[1,:-1]-nums[1,1:])-9000))
+      oims=nums.copy()
+      oims[1,ind:]/=10
+      return oims
+ 
 def get_clock(image,points):
     t1=np.array(points)
     t2=np.array([[0,0],[230,0],[230,120],[0,120]])
@@ -328,7 +334,7 @@ out_dir='tops/'+top_name
 if not os.path.exists(out_dir):
     os.system('mkdir '+out_dir)
 if top_name in names.keys():
-    np.save(out_dir+'/'+str(names[top_name])+'.npy',np.array([timestamps,rpms]))
+    np.save(out_dir+'/'+str(names[top_name])+'.npy',np.array([timestamps,fix_point(rpms)]))
 else:
     np.save(out_dir+'/0.npy',np.array([timestamps,rpms]))
 
