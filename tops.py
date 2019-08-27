@@ -77,7 +77,6 @@ def render(digit):
             width=10                  
             height=[10,45,10,45,10][y_ind]                      
             oim[y_off:y_off+height,x_off:x_off+width]=1
-    #ims(name,oim)
     return oim
 
 def applyAffineTransform(src, srcTri, dstTri, size) :
@@ -105,36 +104,27 @@ def get_clock(image,points):
     img1Rect = image[r1[1]:r1[1] + r1[3], r1[0]:r1[0] + r1[2]] 
     warpImage1 = applyAffineTransform(img1Rect, t1Rect, t2Rect, size)
     g=cv2.cvtColor(warpImage1,cv2.COLOR_BGR2GRAY)
-    #gg1=cv2.GaussianBlur(g,(9,9),2)
-    #gg3=cv2.GaussianBlur(g,(23,23),5)
+    
     gg1=cv2.GaussianBlur(g,(7,7),1)
     gg3=cv2.GaussianBlur(g,(45,45),13)
-    #return binarize(np.float32(gg1)-gg3)
-    #return binarize(gg1)
+    
     return (np.float32(gg1)-gg3)
 
 def get_digits(clock,patterns):
     num=0
     oim=clock.copy()
     start=True
-    #dim=clock
     for i in range(2,6):
         dig=oim[:,i*40:i*40+30]
         bits=np.array(digitize(dig))
-        #render('bbit'+str(i),bits)
-        #ims(str(i),dig>np.mean(dig))
         ind=np.where(np.sum(bits.reshape(1,7)==patterns,1)==7)[0]
         if not len(ind) and np.sum(bits):
-            #print("oops")
             return -1
         elif not np.sum(bits):
             num=num*10
         elif len(ind):
             start=True
-            #print(str(i)+' '+str(ind[0]))
             num=num*10+ind[0]
-    #if has_dot(oim):
-    #    num/=10
     return num
 
 def has_dot(oim):
@@ -182,25 +172,9 @@ def click_and_crop(event, x, y, flags, param):
     # performed
     if event == cv2.EVENT_LBUTTONDOWN:
         ref_pt.append( [x, y])
-        #cropping = True
-        print ("down"+str([x,y]))
+        #print ("down"+str([x,y]))
         print(len(ref_pt))
-    # check to see if the left mouse button was released
-    #elif event == cv2.EVENT_LBUTTONUP:
-    #    # record the ending (x, y) coordinates and indicate that
-    #    # the cropping operation is finished
-    #    refPt.append((x, y))
-    #    cropping = False
-    #print('i')
-    #if len(refPt)==4:
-    #    c=True
-    #    #print ("UP")
-    #    # draw a rectangle around the region of interest
-    #    cv2.rectangle(image, refPt[0], refPt[1], (0, 255, 0), 2)
-    #    cv2.rectangle(image, refPt[1], refPt[2], (0, 255, 0), 2)
-    #    cv2.rectangle(image, refPt[2], refPt[3], (0, 255, 0), 2)
-    #    cv2.rectangle(image, refPt[3], refPt[0], (0, 255, 0), 2)
-    #    cv2.imshow("image", image)
+    
 
 
 
@@ -231,14 +205,12 @@ args = vars(ap.parse_args())
 
 meta_data=json.load(open('tops/data.json'))
 
-# load the image, clone it, and setup the mouse callback function
-#image = cv2.imread(args["image"])
-#clone = image.copy()
+
 cv2.namedWindow("image")
 cv2.setMouseCallback("image", click_and_crop)
 cap=cv2.VideoCapture(0)
 ret,image=cap.read()
-# keep looping until the 'q' key is pressed
+
 
 if args["reuse_rectangle"]:
     ref_pt=meta_data['prev_rect']
@@ -275,24 +247,21 @@ while True:
     clock=get_clock(image,ref_pt)
     for i in range(6):
         digit=digitize(clock[:,i*40:i*40+30])
-        #print(digit)
+        
         image[121:241,i*40:i*40+30,:]=render(digit).reshape(120,30,1)*255
     dot=dot*(1-r)+clock[-10:,-40:-30]*r
     digits=get_digits(clock,patterns)
     if np.mean(dot)<-.1:
         digits/=10
         image[231:241,190:200,:]=255
-    #ims('clock',clock)
+    
     key = cv2.waitKey(1) & 0xFF
     image[:121,:231,:]=grate(clock.reshape(121,231,1))
-    #print(digits)
-    #image[:121,:231,:]=255*clock.reshape(121,231,1)
+    
+    
     image[[10,55,65,110],:231,:]=[[[0,255,0]]]
     image[:121,np.arange(24)*10,:]=[[[0,255,0]]]
-    #for i in range(6):
-    #    digit=digitize(clock[:,i*40:i*40+30])
-    #    print(digit)
-    #    image[121:241,i*40:i*40+30,:]=render(digit).reshape(120,30,1)*255
+    
     image=cv2.putText(image,str(digits),(400,100), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,0),4,cv2.LINE_AA)
     if key == ord("t"):
         print('end')
@@ -321,29 +290,25 @@ while True:
     for i in range(6):
         digit=digitize(clock[:,i*40:i*40+30])
         image[121:241,i*40:i*40+30,:]=render(digit).reshape(120,30,1)*255
-    dot=dot*(1-r)+clock[-10:,-40:-30]*r
+    dot=dot*(1-r)+clock[-10:,-40:-30]*r 
     
-    #mu=mu*(1-r)+np.mean(clock)*r
     digits=get_digits(clock,patterns)
     if np.mean(dot)<0:
         image[231:241,190:200,:]=255
-    #    digits/=10
-    #ims('clock',clock)
+    
     image[:121,:231,:]=grate(clock.reshape(121,231,1))
     image[[10,55,65,110],:231,:]=[[[0,255,0]]]
     image[:121,np.arange(24)*10,:]=[[[0,255,0]]]
-    #for i in range(6):
-    #    digit=digitize(clock[:,i*40:i*40+30])
-    #    image[121:241,i*40:i*40+30,:]=render(digit).reshape(120,30,1)*255
+    
     image=cv2.putText(image,str(digits),(400,100), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,0),4,cv2.LINE_AA)
     tt=np.int32(t-start_time)
     stopwatch=str(tt//60)+':'+str(tt%60)
-    #+":"+str(len(rpms))
+    
     image=cv2.putText(image,stopwatch,(400,150), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,0),4,cv2.LINE_AA)
-    #for i,digit in enumerate(digits):
-    #   image[121:241,i*40:i*40+30,:]=render(patterns[int(digit)]).reshape(120,30,1)
-    #ims('mu',clock>)
-    #print (digits)
+    
+    
+    
+    
     
     if len(rpms)>100:
         if rpms[-100]==digits:
@@ -354,7 +319,7 @@ while True:
     if digits>0:
         rpms.append(digits)
         timestamps.append(t-start_time)
-    #img=cv2.putText(image,'OpenCV',(100,200), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,0,0),4,cv2.LINE_AA)
+    
     cv2.imshow("image", image)
 
 top_name=args["top_name"]
