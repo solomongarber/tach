@@ -316,7 +316,7 @@ while True:
                   print(rpms[-100:])
                   print(digits)
                   break
-    if digits>0:
+    if digits>=0:
         rpms.append(digits)
         timestamps.append(t-start_time)
     
